@@ -1,6 +1,5 @@
 # 🎓 PaperGen AI (v2.0.0)
 
-[![Live Demo](https://img.shields.io/badge/demo-live-6A3FF4?style=for-the-badge)](https://papergen-quiz-miniproject-assignments.onrender.com/)
 [![Python](https://img.shields.io/badge/Python-3.9+-blue?style=for-the-badge&logo=python)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.1.0-white?style=for-the-badge&logo=flask)](https://flask.palletsprojects.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
@@ -33,7 +32,7 @@
 | **Backend** | Python 3.x, Flask, python-dotenv |
 | **Frontend** | Tailwind CSS, JavaScript (ES6+), Jinja2 Templates |
 | **Parsing** | PyMuPDF (fitz), pdfplumber |
-| **Deployment** | Render (Backend), GitHub (Version Control) |
+| **Version Control** | GitHub |
 
 ---
 
