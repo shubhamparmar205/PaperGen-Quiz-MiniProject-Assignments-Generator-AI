@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create an Account | PaperGen</title>
+    
+    <!-- Google Font Import -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Basic Reset and Font Setup */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px; /* Added padding for mobile */
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1000px;
+            min-height: 600px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Left Side - Branding */
+        .branding-side {
+            flex: 1;
+            background: #6A3FF4; /* Updated brand color to match logo */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* New Logo Container */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .logo-container h1 {
+            font-size: 2.5rem;
+            font-weight: 700; /* Bolder font weight */
+            color: #fff;
+            margin: 0;
+        }
+
+        .logo-container .beta-tag {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #f0eaff;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .branding-side .tagline {
+            font-size: 1rem;
+            max-width: 300px;
+            z-index: 1;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Right Side - Form */
+        .form-side {
+            flex: 1;
+            padding: 40px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .form-side h2 {
+            margin-bottom: 15px; /* Adjusted for flash messages */
+            color: #333;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+
+        /* --- NEW: Styles for Flashed Messages --- */
+        .flashes {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .alert-success { background-color: #e0f2e9; color: #1d7c4d; }
+        .alert-danger { background-color: #fce8e6; color: #c5221f; }
+        .alert-warning { background-color: #fff8e1; color: #6a4a00; }
+        .alert-info { background-color: #e8f0fe; color: #174ea6; }
+        /* --- End of New Styles --- */
+        
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            fill: #aaa;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px 12px 50px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        /* Specific padding for password to make room for toggle icon */
+        input[name="password"] {
+            padding-right: 50px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #6A3FF4;
+            box-shadow: 0 0 0 3px rgba(106, 63, 244, 0.2);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+        .toggle-password svg {
+            width: 22px;
+            height: 22px;
+            fill: #aaa;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #6A3FF4; /* Updated brand color */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background: #5B2EE5; /* Darker shade for hover */
+            transform: translateY(-2px);
+        }
+        
+        .extra-links {
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: #555;
+            text-align: center;
+        }
+        
+        .extra-links a {
+            color: #6A3FF4; /* Updated brand color */
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .extra-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 850px) {
+            .container {
+                flex-direction: column;
+                min-height: auto;
+                width: 100%; /* Changed to fill padded body */
+                max-width: 500px;
+            }
+            .branding-side {
+                padding: 40px 30px;
+                border-radius: 20px 20px 0 0;
+            }
+            .logo-container h1 {
+                font-size: 2.2rem;
+            }
+            .form-side {
+                padding: 40px 30px; /* Increased vertical padding */
+                border-radius: 0 0 20px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="branding-side">
+            <div class="logo-container">
+                <h1>PaperGen</h1>
+                <span class="beta-tag">Beta</span>
+            </div>
+            <p class="tagline">Unlock powerful tools for academic success. Sign up to get started.</p>
+        </div>
+        <div class="form-side">
+
+            <h2>Create Your Account</h2>
+            
+            <!-- NEW: Section to display flashed messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="alert alert-{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="/register">
+                <div class="input-group">
+                    <svg class="input-icon" viewBox="0 0 24 24"><path d="M12,12A5,5,0,1,0,7,7,5,5,0,0,0,12,12Zm0-8A3,3,0,1,1,9,7,3,3,0,0,1,12,4ZM12,14a9,9,0,0,0-9,9,1,1,0,0,0,2,0,7,7,0,0,1,14,0,1,1,0,0,0,2,0,9,9,0,0,0-9-9Z"/></svg>
+                    <input type="text" name="username" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <svg class="input-icon" viewBox="0 0 24 24"><path d="M22,5.5H2a1,1,0,0,0-1,1v11a1,1,0,0,0,1,1H22a1,1,0,0,0,1-1V6.5A1,1,0,0,0,22,5.5Zm-1.56,1-8.25,6.31a.5.5,0,0,1-.55,0L3.56,6.5ZM2,17.5V7.17l8.6,6.55a1,1,0,0,0,1.1,0L22,7.17V17.5Z"/></svg>
+                    <input type="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <svg class="input-icon" viewBox="0 0 24 24"><path d="M19,8.5H17V6.5a5,5,0,0,0-10,0V8.5H5a1,1,0,0,0-1,1v10a1,1,0,0,0,1,1H19a1,1,0,0,0,1-1v-10A1,1,0,0,0,19,8.5ZM9,6.5a3,3,0,0,1,6,0V8.5H9ZM18,18.5H6v-8H18Z"/></svg>
+                    <input type="password" name="password" id="password" placeholder="Password" required>
+                    <span class="toggle-password" id="togglePassword">
+                        <svg class="eye-icon" viewBox="0 0 24 24"><path d="M21.92,11.6C19.9,6.91,16.1,4,12,4S4.1,6.91,2.08,11.6a1,1,0,0,0,0,.8C4.1,17.09,7.9,20,12,20s7.9-2.91,9.92-7.6A1,1,0,0,0,21.92,11.6ZM12,18c-3.17,0-6.17-2.29-7.9-6C5.83,8.29,8.83,6,12,6s6.17,2.29,7.9,6C18.17,15.71,15.17,18,12,18ZM12,8a4,4,0,1,0,4,4A4,4,0,0,0,12,8Zm0,6a2,2,0,1,1,2-2A2,2,0,0,1,12,14Z"/></svg>
+                        <svg class="eye-slash-icon" style="display: none;" viewBox="0 0 24 24"><path d="M12,4C7.9,4,4.1,6.91,2.08,11.6a1,1,0,0,0,0,.8C2.53,13.48,3.6,14.82,4.8,15.86l-1.5,1.5A1,1,0,0,0,3.29,18.71L5,17V17a15.3,15.3,0,0,0,7,2c4.1,0,7.9-2.91,9.92-7.6a1,1,0,0,0,0-.8C21.47,10.52,20.4,9.18,19.2,8.14l1.5-1.5a1,1,0,0,0-1.41-1.41ZM12,18c-1.52,0-2.91-.56-4.13-1.54l1.84-1.84A4,4,0,0,0,14,12a3.92,3.92,0,0,0-.12-.95l2.4-2.4C17.65,9.54,19.12,10.66,19.9,12,18.17,15.71,15.17,18,12,18ZM12,8a4,4,0,0,0-1.28.25L13.6,11.1A2,2,0,0,1,12,14a1.94,1.94,0,0,1-1-.23L8.13,10.9A4,4,0,0,0,12,8Z"/></svg>
+                    </span>
+                </div>
+                <button type="submit">Sign Up</button>
+            </form>
+            <div class="extra-links">
+                <p>Already have an account? <a href="/login">Login</a></p>
+                <p style="margin-top: 10px;"><a href="javascript:history.back()">« Back to previous page</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+        const eyeIcon = document.querySelector('.eye-icon');
+        const eyeSlashIcon = document.querySelector('.eye-slash-icon');
+
+        togglePassword.addEventListener('click', function (e) {
+            // toggle the type attribute
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            
+            // toggle the eye slash icon
+            if (type === 'password') {
+                eyeIcon.style.display = 'block';
+                eyeSlashIcon.style.display = 'none';
+            } else {
+                eyeIcon.style.display = 'none';
+                eyeSlashIcon.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
+

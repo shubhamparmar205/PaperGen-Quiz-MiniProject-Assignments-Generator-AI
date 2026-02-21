@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PaperGen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        /* Hide scrollbar for webkit browsers */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        /* Custom style for max-height on textarea */
+        .max-h-36 {
+            max-height: 9rem; /* Approx 5 lines */
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-white w-64 flex-shrink-0 border-r border-slate-200 flex flex-col transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 fixed lg:static z-40 h-full">
+            <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <h1 class="text-xl font-bold text-[#6A3FF4]">PaperGen</h1>
+                    <span class="bg-purple-100 text-[#6A3FF4] text-xs font-semibold px-2 py-0.5 rounded-full uppercase">Beta</span>
+                </div>
+                <button id="close-sidebar" class="lg:hidden text-slate-500 hover:text-slate-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-4 flex-grow overflow-y-auto no-scrollbar">
+                <button id="new-generation-btn" class="w-full bg-[#6A3FF4] text-white font-semibold rounded-lg text-sm px-4 py-2.5 flex items-center justify-center gap-2 hover:bg-[#5B2EE5] transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    New Generation
+                </button>
+
+                <div class="mt-6">
+                    <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">History</h3>
+                    <div id="history-container" class="space-y-1">
+                        {% if history %}
+                            {% for content in history %}
+                                <!-- ADD data-content-type to the history link -->
+                                <a href="#" class="history-item group flex items-center gap-2 px-2 py-2 text-sm font-medium text-slate-700 rounded-md hover:bg-slate-100" data-content="{{ content.generated_text | e }}" data-content-type="{{ content.content_type | e }}">
+                                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-5-5h14l-5 5z"></path></svg>
+                                    <span class="truncate">{{ content.content_type }} - {{ content.created_at.strftime('%b %d') }}</span>
+                                </a>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-xs text-slate-400 text-center py-4">No history yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-purple-200 text-[#6A3FF4] flex items-center justify-center font-bold text-sm">
+                        {{ current_user.username[0] | upper }}
+                    </div>
+                    <div class="flex-grow">
+                        <p class="text-sm font-semibold text-slate-800 truncate">{{ current_user.username }}</p>
+                        <a href="{{ url_for('dashboard') }}" class="text-xs text-slate-500 hover:underline">Dashboard</a>
+                        <span class="text-xs text-slate-300 mx-1">|</span>
+                        <a href="{{ url_for('logout') }}" class="text-xs text-slate-500 hover:underline">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Overlay for mobile -->
+        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header for mobile -->
+            <header class="lg:hidden bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between p-4">
+                 <button id="open-sidebar" class="text-slate-600 hover:text-slate-900">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-lg font-bold text-[#6A3FF4]">PaperGen</h1>
+                    <span class="bg-purple-100 text-[#6A3FF4] text-xs font-semibold px-2 py-0.5 rounded-full uppercase">Beta</span>
+                </div>
+                <div class="w-6"></div> <!-- Spacer to balance the header -->
+            </header>
+
+            <div id="chat-container" class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+                <div id="initial-message" class="flex flex-col items-center justify-center h-full text-center">
+                    <div class="mb-4">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-slate-800">Welcome to PaperGen</h2>
+                        <p class="text-slate-500 mt-2 text-sm sm:text-base">Upload a document or paste text below to get started.</p>
+                    </div>
+                </div>
+                <!-- Chat messages will be appended here -->
+            </div>
+
+            <div class="p-4 sm:p-6 lg:p-8 bg-white/80 backdrop-blur-md border-t border-slate-200">
+                <form id="query-form" class="max-w-3xl mx-auto">
+                    
+                    <!-- --- START: FINAL LAYOUT --- -->
+                    
+                    <!-- Dropdowns (Above Textarea, Centered) -->
+                    <div class="flex justify-center mb-2 gap-4"> 
+                        
+                        <!-- Bloom's Level Dropdown -->
+                        <div class="flex items-center gap-2 w-full sm:w-auto flex-shrink-0">
+                            <label for="bloom_level" class="text-slate-600 font-medium whitespace-nowrap text-sm">Bloom's Level:</label>
+                            <select id="bloom_level" name="bloom_level" class="w-full bg-white border border-slate-300 rounded-full px-3 py-1 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#6A3FF4] text-xs sm:text-sm">
+                                <option value="Remember">1. Remembering</option>
+                                <option value="Understand">2. Understanding</option>
+                                <option value="Apply">3. Applying</option>
+                                <option value="Analyse">4. Analyzing</option>
+                                <option value="Evaluate">5. Evaluating</option>
+                                <option value="Create">6. Creating</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Difficulty Level Dropdown -->
+                        <div class="flex items-center gap-2 w-full sm:w-auto flex-shrink-0">
+                            <label for="difficulty_level" class="text-slate-600 font-medium whitespace-nowrap text-sm">Difficulty:</label>
+                            <select id="difficulty_level" name="difficulty_level" class="w-full bg-white border border-slate-300 rounded-full px-3 py-1 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#6A3FF4] text-xs sm:text-sm">
+                                <option value="Easy">Easy</option>
+                                <option value="Moderate" selected>Moderate</option>
+                                <option value="Challenging">Challenging</option>
+                                <option value="Expert">Expert</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <!-- Textarea and Submit Button Row -->
+                    <!-- items-center keeps button vertically centered -->
+                    <div class="flex items-center gap-2 mb-3"> 
+                        <!-- Textarea Input Container -->
+                        <div class="relative flex-grow"> 
+                            <div class="absolute left-3 top-1/2 -translate-y-1/2 flex items-center">
+                                 <label for="file-upload" class="cursor-pointer text-slate-500 hover:text-[#6A3FF4] p-1.5 rounded-full hover:bg-purple-100">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                                </label>
+                                <input type="file" id="file-upload" name="file" class="hidden" accept=".pdf,.txt">
+                                <span id="file-name" class="text-xs text-slate-500 ml-2 max-w-[80px] sm:max-w-[100px] truncate"></span>
+                            </div>
+                            <textarea id="query" name="query" placeholder="Upload a file or paste text..." rows="1" class="w-full pl-24 py-3 bg-white border border-slate-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6A3FF4] resize-none max-h-36 placeholder:text-sm sm:placeholder:text-base"></textarea> 
+                        </div> 
+                        
+                        <!-- Submit Button (self-end removed) -->
+                        <button type="submit" class="flex-shrink-0 bg-[#6A3FF4] text-white rounded-lg p-2 hover:bg-[#5B2EE5] transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                        </button>
+                    </div>
+
+                    <!-- Content Type Buttons (Bottom Row, Centered and Scrolling Internally) -->
+                    <div id="option-buttons-container" class="flex justify-center items-center gap-2 text-sm w-full">
+                        <span class="text-slate-600 font-medium whitespace-nowrap flex-shrink-0">I need a:</span>
+                        <div class="flex gap-2 flex-nowrap overflow-x-auto no-scrollbar">
+                           <button type="button" class="option-btn bg-white border border-slate-300 rounded-full px-3 py-1 text-slate-700 hover:bg-slate-100 hover:border-slate-400 transition-colors text-xs sm:text-sm whitespace-nowrap" data-type="Quiz">Quiz</button>
+                           <button type="button" class="option-btn bg-white border border-slate-300 rounded-full px-3 py-1 text-slate-700 hover:bg-slate-100 hover:border-slate-400 transition-colors text-xs sm:text-sm whitespace-nowrap" data-type="Scenario">Scenario</button>
+                           <button type="button" class="option-btn bg-white border border-slate-300 rounded-full px-3 py-1 text-slate-700 hover:bg-slate-100 hover:border-slate-400 transition-colors text-xs sm:text-sm whitespace-nowrap" data-type="Presentation">Presentation</button>
+                           <button type="button" class="option-btn bg-white border border-slate-300 rounded-full px-3 py-1 text-slate-700 hover:bg-slate-100 hover:border-slate-400 transition-colors text-xs sm:text-sm whitespace-nowrap" data-type="Mini Project">Mini Project</button>
+                           <button type="button" class="option-btn bg-white border border-slate-300 rounded-full px-3 py-1 text-slate-700 hover:bg-slate-100 hover:border-slate-400 transition-colors text-xs sm:text-sm whitespace-nowrap" data-type="Group Discussion">Group Discussion</button>
+                        </div>
+                    </div>
+                    
+                    <!-- --- END: FINAL LAYOUT --- -->
+
+                    <input type="hidden" name="content_type" id="content_type" value="">
+                </form>
+                <div id="warning-tooltip" class="fixed top-5 left-1/2 -translate-x-1/2 bg-red-500 text-white text-xs sm:text-sm font-medium py-2 px-3 sm:py-2 sm:px-4 rounded-lg shadow-lg transition-all duration-300 ease-in-out transform -translate-y-20 opacity-0 pointer-events-none z-50"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('query-form');
+        const chatContainer = document.getElementById('chat-container');
+        const initialMessage = document.getElementById('initial-message');
+        const queryTextarea = document.getElementById('query');
+        const fileUpload = document.getElementById('file-upload');
+        const fileNameSpan = document.getElementById('file-name');
+        const optionButtonsContainer = document.getElementById('option-buttons-container');
+        const contentTypeInput = document.getElementById('content_type');
+        const warningTooltip = document.getElementById('warning-tooltip');
+        const historyContainer = document.getElementById('history-container');
+        const sidebar = document.getElementById('sidebar');
+        const openSidebarBtn = document.getElementById('open-sidebar');
+        const closeSidebarBtn = document.getElementById('close-sidebar');
+        const overlay = document.getElementById('overlay');
+        const newGenerationBtn = document.getElementById('new-generation-btn');
+        const bloomLevelSelect = document.getElementById('bloom_level');
+        const difficultyLevelSelect = document.getElementById('difficulty_level'); 
+
+        // Adjust textarea height on input
+        if (queryTextarea) {
+            queryTextarea.addEventListener('input', () => {
+                queryTextarea.style.height = 'auto';
+                const newHeight = Math.min(queryTextarea.scrollHeight, 144); // 144px is approx max-h-36
+                queryTextarea.style.height = `${newHeight}px`;
+            });
+        }
+        // Removed the ResizeObserver and related self-end logic
+
+
+        if (openSidebarBtn) {
+            openSidebarBtn.addEventListener('click', () => {
+                if(sidebar) sidebar.classList.remove('-translate-x-full');
+                if(overlay) overlay.classList.remove('hidden');
+            });
+        }
+        if (closeSidebarBtn) {
+            closeSidebarBtn.addEventListener('click', () => {
+                if(sidebar) sidebar.classList.add('-translate-x-full');
+                if(overlay) overlay.classList.add('hidden');
+            });
+        }
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                if(sidebar) sidebar.classList.add('-translate-x-full');
+                if(overlay) overlay.classList.add('hidden');
+            });
+        }
+        if (newGenerationBtn) {
+            newGenerationBtn.addEventListener('click', () => {
+                window.location.href = '/';
+            });
+        }
+        
+        if (fileUpload) {
+            fileUpload.addEventListener('change', () => {
+                if(fileNameSpan) fileNameSpan.textContent = fileUpload.files.length > 0 ? fileUpload.files[0].name : '';
+            });
+        }
+
+        if (optionButtonsContainer) {
+            optionButtonsContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('option-btn')) {
+                    optionButtonsContainer.querySelectorAll('.option-btn').forEach(btn => {
+                        btn.classList.remove('bg-[#6A3FF4]', 'text-white', 'border-transparent');
+                        btn.classList.add('bg-white', 'border-slate-300', 'text-slate-700');
+                    });
+                    e.target.classList.add('bg-[#6A3FF4]', 'text-white', 'border-transparent');
+                    e.target.classList.remove('bg-white', 'border-slate-300', 'text-slate-700');
+                    if(contentTypeInput) contentTypeInput.value = e.target.dataset.type;
+                }
+            });
+        }
+
+
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const query = queryTextarea ? queryTextarea.value.trim() : '';
+                const file = fileUpload ? fileUpload.files.length > 0 : false;
+                const contentType = contentTypeInput ? contentTypeInput.value : '';
+                const bloomLevel = bloomLevelSelect ? bloomLevelSelect.value : 'Remember';
+                const difficultyLevel = difficultyLevelSelect ? difficultyLevelSelect.value : 'Moderate'; 
+
+                if (!contentType) {
+                    showWarning('Please select a content type first.');
+                    return;
+                }
+                 if (!bloomLevel) {
+                    showWarning('Please select a Bloom\'s Taxonomy level.');
+                    return;
+                }
+                 if (!difficultyLevel) { 
+                    showWarning('Please select a Difficulty level.');
+                    return;
+                }
+                if (!query && !file) {
+                    showWarning('Please upload a file or paste your text.');
+                    return;
+                }
+
+                if (initialMessage) {
+                   initialMessage.style.display = 'none';
+                }
+
+                const userMessage = `${contentType} (${bloomLevel} / ${difficultyLevel})${(query ? `: "${query.substring(0, 30)}..."` : ` from ${fileUpload.files[0].name}`)}`;
+                createMessageElement('You', userMessage);
+
+                const loadingElement = createMessageElement('AI', '', true);
+                if(chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch('/process', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                    const data = await response.json();
+                    updateMessageElement(loadingElement, data.result, contentType);
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    updateMessageElement(loadingElement, "Sorry, something went wrong. Please try again.");
+                } finally {
+                    if(queryTextarea) {
+                        queryTextarea.value = '';
+                         queryTextarea.style.height = 'auto'; // Reset height after submit
+                    }
+                    if(fileUpload) fileUpload.value = '';
+                    if(fileNameSpan) fileNameSpan.textContent = '';
+                    // Removed the submit button alignment reset line
+                }
+            });
+        }
+
+        if (historyContainer) {
+            historyContainer.addEventListener('click', (e) => {
+                const item = e.target.closest('.history-item');
+                if (item) {
+                    e.preventDefault();
+                    if (initialMessage) initialMessage.style.display = 'none';
+                    if(chatContainer) chatContainer.querySelectorAll('.message-wrapper').forEach(el => el.remove());
+                    
+                    const content = item.dataset.content;
+                    const contentType = item.dataset.contentType; 
+
+                    const aiMessageElement = createMessageElement('AI', '');
+                    updateMessageElement(aiMessageElement, content, contentType); 
+                     
+                    if (window.innerWidth < 1024 && sidebar && overlay) {
+                        sidebar.classList.add('-translate-x-full');
+                        overlay.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        function showWarning(message) {
+             if(warningTooltip){
+                warningTooltip.textContent = message;
+                warningTooltip.classList.remove('-translate-y-20', 'opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    warningTooltip.classList.add('-translate-y-20', 'opacity-0', 'pointer-events-none');
+                }, 3000);
+             }
+        }
+
+        function createMessageElement(sender, text, isLoading = false) {
+             if(!chatContainer) return null;
+
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = 'message-wrapper mb-6';
+
+            const senderDiv = document.createElement('div');
+            senderDiv.className = 'flex items-center gap-2 mb-2';
+
+            const senderIcon = document.createElement('div');
+            senderIcon.className = `w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${sender === 'You' ? 'bg-blue-200 text-blue-800' : 'bg-purple-200 text-purple-800'}`;
+            senderIcon.textContent = sender === 'You' ? ( '{% if current_user.is_authenticated %}{{ current_user.username[0] | upper }}{% else %}U{% endif %}' ) : 'AI';
+
+            const senderName = document.createElement('p');
+            senderName.className = 'font-semibold text-slate-800';
+            senderName.textContent = sender;
+
+            senderDiv.appendChild(senderIcon);
+            senderDiv.appendChild(senderName);
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'prose prose-sm max-w-none ml-8 text-slate-700 prose-styles';
+
+            if (isLoading) {
+                contentDiv.innerHTML = `<div class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-slate-500 rounded-full animate-pulse"></div>
+                    <div class="w-2 h-2 bg-slate-500 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
+                    <div class="w-2 h-2 bg-slate-500 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
+                </div>`;
+            } else {
+                const pre = document.createElement('pre');
+                pre.className = 'whitespace-pre-wrap font-sans';
+                pre.textContent = text;
+                contentDiv.appendChild(pre);
+            }
+
+            messageWrapper.appendChild(senderDiv);
+            messageWrapper.appendChild(contentDiv);
+            chatContainer.appendChild(messageWrapper);
+            if(chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            return messageWrapper;
+        }
+
+        function updateMessageElement(element, newText, contentType = null) {
+             if (!element) return;
+            const contentDiv = element.querySelector('.prose');
+            if(!contentDiv) return;
+            contentDiv.innerHTML = ''; 
+
+            const pre = document.createElement('pre');
+            pre.className = 'whitespace-pre-wrap font-sans';
+            pre.textContent = newText;
+            contentDiv.appendChild(pre);
+
+            element.dataset.originalContent = newText; 
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'mt-2 flex flex-wrap gap-2 items-center';
+
+            let actionsHTML = `
+                <button class="copy-btn text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 p-1 rounded hover:bg-slate-200">
+                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg> Copy
+                </button>
+                <button class="download-btn text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 p-1 rounded hover:bg-slate-200">
+                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> Download
+                </button>
+            `;
+
+            const lowerContentType = contentType ? contentType.toLowerCase() : '';
+            
+            if (lowerContentType === 'quiz' || lowerContentType === 'scenario' || lowerContentType === 'assignment') {
+                actionsHTML += `
+                    <button class="generate-answers-btn text-xs bg-green-100 text-green-700 font-medium px-2.5 py-1.5 rounded-full hover:bg-green-200 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Generate Expected Answers
+                    </button>
+                `;
+            } else if (lowerContentType === 'presentation' || lowerContentType === 'mini project' || lowerContentType === 'group discussion') {
+                 actionsHTML += `
+                    <button class="generate-description-btn text-xs bg-blue-100 text-blue-700 font-medium px-2.5 py-1.5 rounded-full hover:bg-blue-200 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                        Generate Description
+                    </button>
+                `;
+            }
+
+
+            actionsDiv.innerHTML = actionsHTML;
+            contentDiv.appendChild(actionsDiv);
+
+            const copyBtn = actionsDiv.querySelector('.copy-btn');
+            const downloadBtn = actionsDiv.querySelector('.download-btn');
+            const generateAnswersBtn = actionsDiv.querySelector('.generate-answers-btn');
+            const generateDescriptionBtn = actionsDiv.querySelector('.generate-description-btn');
+
+            if(copyBtn){
+                 copyBtn.addEventListener('click', (e) => {
+                     navigator.clipboard.writeText(newText).then(() => {
+                         const btn = e.currentTarget;
+                         btn.innerHTML = `<svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copied!`;
+                         setTimeout(() => {
+                             btn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg> Copy`;
+                         }, 2000);
+                     }).catch(err => console.error('Failed to copy text: ', err));
+                 });
+            }
+
+            if(downloadBtn){
+                 downloadBtn.addEventListener('click', () => {
+                     try {
+                         const blob = new Blob([newText], { type: 'text/plain;charset=utf-8' });
+                         const url = window.URL.createObjectURL(blob);
+                         const a = document.createElement('a');
+                         a.href = url;
+                         a.download = 'papergen-content.txt';
+                         document.body.appendChild(a);
+                         a.click();
+                         document.body.removeChild(a);
+                         window.URL.revokeObjectURL(url);
+                     } catch (err) {
+                         console.error('Failed to download file:', err);
+                     }
+                 });
+            }
+
+            if(generateAnswersBtn) {
+                generateAnswersBtn.addEventListener('click', handleGenerateAnswers);
+            }
+            
+            if(generateDescriptionBtn) {
+                generateDescriptionBtn.addEventListener('click', handleGenerateDescription);
+            }
+
+            if(chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function handleGenerateAnswers(event) {
+            const button = event.target.closest('.generate-answers-btn');
+             if(!button) return;
+            const messageWrapper = button.closest('.message-wrapper');
+             if (!messageWrapper) return;
+            const originalQuestions = messageWrapper.dataset.originalContent; 
+
+            button.innerHTML = `<div class="flex items-center gap-1"> <div class="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div> Generating... </div>`;
+            button.disabled = true;
+
+            try {
+                const response = await fetch('/generate_answers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ questions: originalQuestions })
+                });
+                if (!response.ok) {
+                    let errorMsg = `HTTP error! status: ${response.status}`;
+                    try { const errData = await response.json(); errorMsg = errData.error || errorMsg; } catch (jsonErr) {}
+                    throw new Error(errorMsg);
+                }
+
+                const data = await response.json();
+                if (data.answers) {
+                    createMessageElement('AI', `Model Answers:\n\n${data.answers}`);
+                    button.remove();
+                } else {
+                    console.error('Unexpected response format:', data);
+                    createMessageElement('AI', "Received an unexpected format for answers.");
+                    button.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Generate Expected Answers`;
+                    button.disabled = false;
+                }
+
+            } catch (error) {
+                console.error('Error generating answers:', error);
+                createMessageElement('AI', `Sorry, I couldn't generate the answers. ${error.message}`);
+                button.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Generate Expected Answers`;
+                button.disabled = false;
+            } finally {
+                 if(chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+
+        async function handleGenerateDescription(event) {
+            const button = event.target.closest('.generate-description-btn');
+            if(!button) return;
+            const messageWrapper = button.closest('.message-wrapper');
+            if (!messageWrapper) return;
+            const originalTopics = messageWrapper.dataset.originalContent; 
+
+            button.innerHTML = `<div class="flex items-center gap-1"> <div class="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div> Generating... </div>`;
+            button.disabled = true;
+
+            try {
+                const response = await fetch('/generate_description', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topics: originalTopics }) 
+                });
+                if (!response.ok) {
+                    let errorMsg = `HTTP error! status: ${response.status}`;
+                    try { const errData = await response.json(); errorMsg = errData.error || errorMsg; } catch (jsonErr) {}
+                    throw new Error(errorMsg);
+                }
+
+                const data = await response.json();
+                if (data.description) {
+                    createMessageElement('AI', `Descriptions:\n\n${data.description}`);
+                    button.remove();
+                } else {
+                    console.error('Unexpected response format:', data);
+                    createMessageElement('AI', "Received an unexpected format for descriptions.");
+                    button.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg> Generate Description`;
+                    button.disabled = false;
+                }
+
+            } catch (error) {
+                console.error('Error generating description:', error);
+                createMessageElement('AI', `Sorry, I couldn't generate the description. ${error.message}`);
+                button.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg> Generate Description`;
+                button.disabled = false;
+            } finally {
+                 if(chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+
+
+    });
+</script>
+
+</body>
+</html>
+

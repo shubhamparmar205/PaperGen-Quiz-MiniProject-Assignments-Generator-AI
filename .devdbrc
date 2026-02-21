@@ -1,0 +1,14 @@
+[
+  {
+    "type": "sqlite",
+    "path": "t:\\PaperGen-Quiz-MiniProject-Assignments-Generator-AI-master\\instance\\papergen.db"
+  },
+  {
+    "type": "sqlite",
+    "path": "t:\\PaperGen-Beta\\instance\\papergen.db"
+  },
+  {
+    "type": "sqlite",
+    "path": "c:\\Users\\shubh\\OneDrive\\Desktop\\papergen-beta-main\\instance\\papergen.db"
+  }
+]

@@ -1,0 +1,24 @@
+Data analytics and life cycle and
+regression model
+1.1 Data Analytics Lifecycle overview:
+Key Roles for a Successful Analytics,
+Background and Overview of Data
+Analytics Lifecycle Project, Details of 6
+phases in Data Analytics Life cycle
+1.2 Introduction to Simple Linear
+Regression: The Regression Equation,
+fitted value and Residuals, Least Square
+1.3 Introduction to Multiple Linear
+Regression: Assessing the Model,
+Cross-Validation, Model Selection and
+Stepwise Regression, Prediction Using
+Regression
+1.4 Logistic Regression: Logistic
+Response function and logit, Logistic
+Regression and GLM, Generalized
+Linear model, predicted values from
+Logistic Regression, Interpreting the
+coefficients and odds ratios, Linear and
+Logistic
+1.5 Regression: similarities and
+Differences, Assessing the models

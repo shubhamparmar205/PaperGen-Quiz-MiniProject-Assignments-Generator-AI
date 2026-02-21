@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PaperGen - AI-Powered Educational Content Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-text {
+            background: linear-gradient(120deg, #4f46e5, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Page Loader Styles */
+        #preloader {
+            transition: opacity 0.5s ease-out;
+        }
+        /* Scroll Animation Styles */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .animate-on-scroll.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Pre-loader -->
+    <div id="preloader" class="fixed top-0 left-0 right-0 bottom-0 bg-white z-[100] flex justify-center items-center">
+        <div class="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-indigo-600"></div>
+    </div>
+
+    <!-- Header & Navbar -->
+    <header class="bg-white/80 backdrop-blur-lg fixed top-0 left-0 right-0 z-50 border-b border-slate-200">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-baseline space-x-2">
+                <h1 class="text-2xl font-bold gradient-text">PaperGen</h1>
+                <span class="bg-purple-100 text-purple-600 text-xs font-semibold px-2 py-0.5 rounded-full">BETA</span>
+            </div>
+            <nav class="hidden md:flex items-center space-x-4">
+                <a href="#features" class="text-slate-600 hover:text-indigo-600">Features</a>
+                <a href="#how-it-works" class="text-slate-600 hover:text-indigo-600">How It Works</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="{{ url_for('login') }}" class="text-sm font-medium text-slate-600 hover:text-indigo-600">Login</a>
+                <a href="{{ url_for('register') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 px-4 rounded-lg shadow-md transition-transform duration-200 hover:scale-105">
+                    Register
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="pt-32 pb-20 text-center bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight animate-on-scroll">
+                    Unlock Your Content's <span class="gradient-text">Potential</span>
+                </h2>
+                <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto mb-8 animate-on-scroll" style="transition-delay: 100ms;">
+                    PaperGen is an AI-powered tool that instantly transforms your study materials, notes, or documents into engaging quizzes, assignments, and presentations.
+                </p>
+                <a href="{{ url_for('register') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-xl transition-transform duration-200 hover:scale-105 inline-block animate-on-scroll" style="transition-delay: 200ms;">
+                    Get Started for Free
+                </a>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl md:text-4xl font-bold animate-on-scroll">Everything You Need to Create</h3>
+                    <p class="text-slate-600 mt-2 animate-on-scroll" style="transition-delay: 100ms;">Generate diverse educational content from a single source.</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Feature 1 -->
+                    <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 animate-on-scroll">
+                        <div class="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold mb-2">Automated Quizzes</h4>
+                        <p class="text-slate-600">Generate multiple-choice questions to test knowledge and aid revision.</p>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 animate-on-scroll" style="transition-delay: 100ms;">
+                        <div class="bg-purple-100 text-purple-600 rounded-full h-12 w-12 flex items-center justify-center mb-4">
+                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold mb-2">Detailed Assignments</h4>
+                        <p class="text-slate-600">Create descriptive questions to encourage critical thinking.</p>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 animate-on-scroll" style="transition-delay: 200ms;">
+                        <div class="bg-sky-100 text-sky-600 rounded-full h-12 w-12 flex items-center justify-center mb-4">
+                           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold mb-2">Presentation Topics</h4>
+                        <p class="text-slate-600">Brainstorm unique and engaging topics for your presentations.</p>
+                    </div>
+                    <!-- Feature 4 -->
+                    <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 animate-on-scroll" style="transition-delay: 300ms;">
+                        <div class="bg-emerald-100 text-emerald-600 rounded-full h-12 w-12 flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h2M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold mb-2">Mini-Project Ideas</h4>
+                        <p class="text-slate-600">Generate creative project ideas complete with problem statements.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl md:text-4xl font-bold animate-on-scroll">Get Started in 3 Simple Steps</h3>
+                </div>
+                <div class="grid md:grid-cols-3 gap-12 text-center">
+                    <!-- Step 1 -->
+                    <div class="animate-on-scroll">
+                        <div class="text-5xl font-extrabold gradient-text mb-2">1</div>
+                        <h4 class="text-xl font-bold mb-2">Upload or Paste</h4>
+                        <p class="text-slate-600">Provide your content by uploading a file (.pdf, .txt) or simply pasting the text.</p>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="animate-on-scroll" style="transition-delay: 100ms;">
+                        <div class="text-5xl font-extrabold gradient-text mb-2">2</div>
+                        <h4 class="text-xl font-bold mb-2">Choose Content Type</h4>
+                        <p class="text-slate-600">Select what you want to create: a quiz, assignment, presentation, or project idea.</p>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="animate-on-scroll" style="transition-delay: 200ms;">
+                        <div class="text-5xl font-extrabold gradient-text mb-2">3</div>
+                        <h4 class="text-xl font-bold mb-2">Generate & Save</h4>
+                        <p class="text-slate-600">Let the AI work its magic. Your new content is ready in seconds, saved to your dashboard.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-400 py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2024 PaperGen. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Page loader logic
+        window.onload = function() {
+            const preloader = document.getElementById('preloader');
+            preloader.style.opacity = '0';
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 500); // Match the CSS transition duration
+        };
+
+        // Scroll animation logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animated');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1 
+            });
+
+            const elements = document.querySelectorAll('.animate-on-scroll');
+            elements.forEach(el => observer.observe(el));
+        });
+    </script>
+
+</body>
+</html>
+
